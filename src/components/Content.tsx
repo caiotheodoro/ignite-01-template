@@ -1,64 +1,31 @@
-import React, {useState, useEffect} from "react";
-import { MovieCard } from '../components/MovieCard';
-import '../styles/global.scss';
-import '../styles/content.scss';
-import { api } from '../services/api';
+import { GenreResponseProps, MovieProps } from "../App";
 
-interface GenreResponseProps {
-  id: number;
-  name: 'action' | 'comedy' | 'documentary' | 'drama' | 'horror' | 'family';
-  title: string;
-}
-
-interface MovieProps {
-  imdbID: string;
-  Title: string;
-  Poster: string;
-  Ratings: Array<{
-    Source: string;
-    Value: string;
-  }>;
-  Runtime: string;
-}
+import { MovieCard } from "./MovieCard";
 
 interface ContentProps {
-  id: number;
+  selectedGenre: GenreResponseProps;
+  movies: MovieProps[];
 }
 
-export function Content(selectedGenreId: ContentProps) {
-  const [genres, setGenres] = useState<GenreResponseProps[]>([]);
-  const [movies, setMovies] = useState<MovieProps[]>([]);
-
-  const [selectedGenre, setSelectedGenre] = useState<GenreResponseProps>({} as GenreResponseProps);
-
-  useEffect(() => {
-    api.get<GenreResponseProps[]>('genres').then(response => {
-      setGenres(response.data);
-    });
-    api.get<MovieProps[]>(`movies/?Genre_id=${selectedGenreId.id}`).then(response => {
-      setMovies(response.data);
-    });
-  
-    api.get<GenreResponseProps>(`genres/${selectedGenreId.id}`).then(response => {
-      setSelectedGenre(response.data);
-    })
-    api.get<GenreResponseProps[]>('genres').then(response => {
-      setGenres(response.data);
-    });
-  }, [selectedGenreId]);
+export function Content({ selectedGenre, movies }: ContentProps) {
   return (
     <div className="container">
-    <header>
+        <header>
       <span className="category">Categoria:<span> {selectedGenre.title}</span></span>
     </header>
 
-    <main>
-      <div className="movies-list">
-        {movies.map(movie => (
-          <MovieCard key ={movie.imdbID} title={movie.Title} poster={movie.Poster} runtime={movie.Runtime} rating={movie.Ratings[0].Value} />
-        ))}
-      </div>
-    </main>
-  </div>
+      <main>
+        <div className="movies-list">
+          {movies.map((movie) => (
+            <MovieCard
+              title={movie.Title}
+              poster={movie.Poster}
+              runtime={movie.Runtime}
+              rating={movie.Ratings[0].Value}
+            />
+          ))}
+        </div>
+      </main>
+    </div>
   );
 }
